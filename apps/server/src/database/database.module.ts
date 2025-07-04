@@ -13,7 +13,7 @@ import { ConfigType } from 'src/config/configuration';
         type: 'postgres',
         host: configService.get('database.host', { infer: true }),
         port: configService.get('database.port', { infer: true }),
-        username: configService.get('database.user', { infer: true }),
+        username: configService.get('database.username', { infer: true }),
         password: configService.get('database.password', { infer: true }),
         database: configService.get('database.name', { infer: true }),
         autoLoadEntities: true,
