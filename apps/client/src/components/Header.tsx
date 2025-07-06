@@ -29,14 +29,6 @@ const Header = () => {
                 Boards
               </Link>
             </li>
-            <li>
-              <Link
-                to="/settings"
-                className="hover:text-blue-200 transition duration-300"
-              >
-                Settings
-              </Link>
-            </li>
           </ul>
         </nav>
       </div>

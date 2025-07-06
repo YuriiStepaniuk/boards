@@ -21,7 +21,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
       <div
         ref={provided.innerRef}
         {...provided.droppableProps}
-        className={`bg-gray-100 rounded p-4 w-1/3 min-h-[400px] ${
+        className={`bg-gray-100 rounded p-4 w-1/3 min-h-[400px] max-h-[600px] overflow-y-auto ${
           snapshot.isDraggingOver ? 'bg-blue-100' : ''
         }`}
       >
