@@ -1,0 +1,32 @@
+import ReactDOM from 'react-dom';
+
+interface ModalProps {
+  children: React.ReactNode;
+  onClose: () => void;
+}
+
+const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
+  const modalRoot = document.getElementById('modal-root');
+
+  if (!modalRoot) return null;
+
+  return ReactDOM.createPortal(
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white p-6 rounded shadow-lg relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-2 right-2">
+          X
+        </button>
+        {children}
+      </div>
+    </div>,
+    modalRoot
+  );
+};
+
+export default Modal;

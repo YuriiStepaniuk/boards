@@ -67,29 +67,35 @@ export class TaskService {
     }
   }
 
-  async update(id: number, data: UpdateTaskDto): Promise<TaskEntity> {
-    try {
-      const task = await this.taskRepository.findOne({ where: { id } });
+  async update(
+    taskId: number,
+    boardId: number,
+    data: UpdateTaskDto,
+  ): Promise<TaskEntity> {
+    const task = await this.taskRepository.findOne({
+      where: { id: taskId },
+      relations: this.relations,
+    });
 
-      if (!task) {
-        throw new NotFoundException('Task was not found');
-      }
-
-      Object.assign(task, data);
-
-      return this.taskRepository.save(task);
-    } catch (error) {
-      console.error();
-      throw error;
+    if (!task || task.board.id !== boardId) {
+      throw new NotFoundException('Task not found for this board');
     }
+
+    Object.assign(task, data);
+
+    return this.taskRepository.save(task);
   }
 
-  async delete(id: number): Promise<DeleteResult> {
-    try {
-      return this.taskRepository.delete(id);
-    } catch (error) {
-      console.error(error);
-      throw error;
+  async delete(taskId: number, boardId: number): Promise<void> {
+    const task = await this.taskRepository.findOne({
+      where: { id: taskId },
+      relations: this.relations,
+    });
+
+    if (!task || task.board.id !== boardId) {
+      throw new NotFoundException('Task not found for this board');
     }
+
+    await this.taskRepository.remove(task);
   }
 }

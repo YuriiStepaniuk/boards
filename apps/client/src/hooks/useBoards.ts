@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Board } from '../types/board.type';
 import { boardService } from '../services/board.service';
 
@@ -7,24 +7,22 @@ export const useBoards = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchBoards = async () => {
+  const fetchBoards = useCallback(async () => {
+    try {
       setIsLoading(true);
+      const data = await boardService.getBoards();
+      setBoards(data);
       setError(null);
-      try {
-        setIsLoading(true);
-        const data = await boardService.getBoards();
-        setBoards(data);
-      } catch (error: any) {
-        console.error(error);
-        setError(error.message || 'Error loading boards');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchBoards();
+    } catch (error: any) {
+      setError(error.message || 'Failed to fetch boards');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  return { boards, isLoading, error };
+  useEffect(() => {
+    fetchBoards();
+  }, [fetchBoards]);
+
+  return { boards, isLoading, error, refetch: fetchBoards };
 };

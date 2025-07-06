@@ -1,4 +1,8 @@
-const SearchBoards = () => {
+interface SearchBoardsProps {
+  onCreateClick: () => void;
+}
+
+const SearchBoards: React.FC<SearchBoardsProps> = ({ onCreateClick }) => {
   return (
     <div className="flex justify-center items-center space-x-4 mb-6 max-w-md mx-auto">
       <div className="flex flex-col flex-grow">
@@ -24,6 +28,7 @@ const SearchBoards = () => {
       </button>
       <button
         type="button"
+        onClick={onCreateClick}
         className="px-5 py-2 mt-6 bg-green-600 text-white font-semibold rounded-md shadow hover:bg-green-700 transition"
       >
         Create
