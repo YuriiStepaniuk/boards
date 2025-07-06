@@ -18,51 +18,65 @@ export const useDnDTasks = (
 
   useEffect(() => {
     if (tasks) {
-      setDndTasks(groupTasksByStatus(tasks));
+      setDndTasks((prevDndTasks) => {
+        const grouped = groupTasksByStatus(tasks);
+        const isSame = Object.keys(grouped).every(
+          (status) =>
+            JSON.stringify(grouped[status as TaskStatus]) ===
+            JSON.stringify(prevDndTasks[status as TaskStatus])
+        );
+        return isSame ? prevDndTasks : grouped;
+      });
     }
   }, [tasks]);
 
   const onDragEnd = async (result: DropResult) => {
     const { source, destination, draggableId } = result;
-
     if (!destination) return;
 
     const sourceStatus = source.droppableId as TaskStatus;
     const destStatus = destination.droppableId as TaskStatus;
+    const taskId = parseInt(draggableId);
 
-    const sourceTasks = Array.from(dndTasks[sourceStatus]);
-    const destTasks =
-      sourceStatus === destStatus
-        ? sourceTasks
-        : Array.from(dndTasks[destStatus]);
-
-    const draggedTaskIndex = sourceTasks.findIndex(
-      (task) => task.id.toString() === draggableId
-    );
-    const [movedTask] = sourceTasks.splice(draggedTaskIndex, 1);
+    // Clone state for manipulation
+    const updatedTasks = { ...dndTasks };
 
     if (sourceStatus === destStatus) {
-      sourceTasks.splice(destination.index, 0, movedTask);
+      // Reorder inside the same column
+      const tasksInColumn = Array.from(updatedTasks[sourceStatus]);
+      const taskIndex = tasksInColumn.findIndex((t) => t.id === taskId);
+      const [movedTask] = tasksInColumn.splice(taskIndex, 1);
+      tasksInColumn.splice(destination.index, 0, movedTask);
 
-      setDndTasks((prev) => ({
-        ...prev,
-        [sourceStatus]: sourceTasks,
-      }));
+      updatedTasks[sourceStatus] = tasksInColumn;
+      setDndTasks(updatedTasks);
+
+      // Optionally call onStatusChange only if you want to persist order
     } else {
+      // Move between columns - update status
+      const sourceTasks = Array.from(updatedTasks[sourceStatus]);
+      const destTasks = Array.from(updatedTasks[destStatus]);
+
+      const taskIndex = sourceTasks.findIndex((t) => t.id === taskId);
+      const [movedTask] = sourceTasks.splice(taskIndex, 1);
       const newTask = { ...movedTask, status: destStatus };
+
       destTasks.splice(destination.index, 0, newTask);
 
-      setDndTasks((prev) => ({
-        ...prev,
-        [sourceStatus]: sourceTasks,
-        [destStatus]: destTasks,
-      }));
+      updatedTasks[sourceStatus] = sourceTasks;
+      updatedTasks[destStatus] = destTasks;
+
+      setDndTasks(updatedTasks);
 
       if (onStatusChange) {
-        await onStatusChange(newTask.id, destStatus);
+        try {
+          onStatusChange(taskId, destStatus);
+        } catch (error) {
+          console.error('Failed to update task status', error);
+        }
       }
     }
   };
 
-  return { dndTasks, onDragEnd, setDndTasks };
+  return { dndTasks, onDragEnd };
 };

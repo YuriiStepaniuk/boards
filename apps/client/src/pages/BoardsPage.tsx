@@ -1,7 +1,11 @@
 import Board from '../components/boards/Board';
 import SearchBoards from '../components/boards/SearchBoards';
-import { useBoards } from '../hooks/useBoards';
-import { boardService } from '../services/board.service';
+import {
+  useGetBoardsQuery,
+  useCreateBoardMutation,
+  useUpdateBoardMutation,
+  useDeleteBoardMutation,
+} from '../store/api/boards-api';
 
 import { BoardFormData } from '../schemas/board.schema';
 import { useModal } from '../hooks/useModal';
@@ -14,7 +18,12 @@ import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 
 const BoardsPage = () => {
-  const { boards, isLoading, error, refetch } = useBoards();
+  const { data: boards, error, isLoading } = useGetBoardsQuery();
+
+  const [createBoard] = useCreateBoardMutation();
+  const [updateBoard] = useUpdateBoardMutation();
+  const [deleteBoard] = useDeleteBoardMutation();
+
   const [boardToUpdate, setBoardToUpdate] = useState<BoardFormData | null>(
     null
   );
@@ -53,9 +62,8 @@ const BoardsPage = () => {
 
   const handleCreateBoard = async (data: BoardFormData) => {
     try {
-      await boardService.createBoard(data);
+      await createBoard(data).unwrap();
       closeCreateModal();
-      await refetch();
     } catch (error) {
       console.error('Create failed:', error);
     }
@@ -63,19 +71,12 @@ const BoardsPage = () => {
 
   const handleUpdateBoard = async (data: BoardFormData) => {
     if (!boardToUpdate) return;
-
     try {
       const boardId = boards?.find((b) => b.name === boardToUpdate.name)?.id;
-
-      if (!boardId) {
-        console.error('Board id not found');
-        return;
-      }
-
-      await boardService.updateBoard(boardId, data);
+      if (!boardId) throw new Error('Board id not found');
+      await updateBoard({ id: boardId, data }).unwrap();
       closeUpdateModal();
       setBoardToUpdate(null);
-      await refetch();
     } catch (error) {
       console.error('Update failed:', error);
     }
@@ -83,10 +84,11 @@ const BoardsPage = () => {
 
   const handleDeleteBoard = async (id: number) => {
     try {
-      await boardService.deleteBoard(id);
-      await refetch();
+      await deleteBoard(id).unwrap();
+      setBoardToDelete(null);
+      closeDeleteModal();
     } catch (error) {
-      console.error('Create failed:', error);
+      console.error('Delete failed:', error);
     }
   };
 
