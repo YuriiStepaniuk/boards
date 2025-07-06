@@ -1,6 +1,5 @@
 import { DragDropContext } from '@hello-pangea/dnd';
 import { TaskStatus } from '../enums/task-status.enum';
-import { useTasks } from '../hooks/useTasks';
 import { useParams } from 'react-router-dom';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
@@ -11,10 +10,17 @@ import { useModal } from '../hooks/useModal';
 import Modal from '../components/Modal';
 import CreateTaskForm from '../components/board/CreateTaskForm';
 import { taskService } from '../services/task.service';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { Task } from '../types/board.type';
 import UpdateTaskForm from '../components/board/UpdateTaskForm';
+import { useAppDispatch, useAppSelector } from '../store/storeHooks';
+import {
+  fetchTasks,
+  createTask,
+  updateTask,
+  deleteTask,
+} from '../store/slices/tasks-slice';
 
 export default function BoardPage() {
   const { id } = useParams();
@@ -42,7 +48,14 @@ export default function BoardPage() {
 
   const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
 
-  const { tasks, isLoading, error, refetch } = useTasks(boardId);
+  const dispatch = useAppDispatch();
+  const tasks = useAppSelector((state) => state.tasks.tasks);
+  const isLoading = useAppSelector((state) => state.tasks.loading);
+  const error = useAppSelector((state) => state.tasks.error);
+
+  useEffect(() => {
+    if (boardId) dispatch(fetchTasks(boardId));
+  }, [boardId, dispatch]);
 
   const handleStatusChange = async (taskId: number, newStatus: TaskStatus) => {
     try {
@@ -52,19 +65,15 @@ export default function BoardPage() {
     }
   };
 
-  const { dndTasks, onDragEnd, setDndTasks } = useDnDTasks(
-    tasks,
-    handleStatusChange
-  );
+  const { dndTasks, onDragEnd } = useDnDTasks(tasks, handleStatusChange);
 
   const handleCreateTask = async (data: TaskFormData) => {
     try {
-      console.log('Creating task');
-      await taskService.createTask(boardId, data);
+      if (!boardId) return;
+      await dispatch(createTask({ boardId, data })).unwrap();
       closeCreateModal();
-      await refetch();
     } catch (error) {
-      console.error('Create task failed: ', error);
+      console.error('Create task failed:', error);
     }
   };
 
@@ -78,13 +87,13 @@ export default function BoardPage() {
   };
 
   const handleUpdateSubmit = async (data: TaskFormData) => {
-    if (!taskToUpdate) return;
-
     try {
-      await taskService.updateTask(boardId, taskToUpdate.id, data);
+      if (!boardId || !taskToUpdate) return;
+      await dispatch(
+        updateTask({ boardId, taskId: taskToUpdate.id, data })
+      ).unwrap();
       closeUpdateModal();
       setTaskToUpdate(null);
-      await refetch();
     } catch (error) {
       console.error('Update task failed:', error);
     }
@@ -96,12 +105,11 @@ export default function BoardPage() {
   };
 
   const confirmDeleteTask = async () => {
-    if (!taskToDelete) return;
     try {
-      await taskService.deleteTask(boardId, taskToDelete);
+      if (!boardId || taskToDelete === null) return;
+      await dispatch(deleteTask({ boardId, taskId: taskToDelete })).unwrap();
       closeDeleteModal();
       setTaskToDelete(null);
-      await refetch();
     } catch (error) {
       console.error('Delete task failed:', error);
     }

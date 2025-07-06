@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { Task } from '../types/board.type';
 import { TaskFormData } from '../schemas/task.schema';
-import { TaskStatus } from '../enums/task-status.enum';
 
 class TaskService {
   async getTasksByBoardId(boardId: number): Promise<Task[]> {

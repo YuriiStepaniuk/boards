@@ -49,8 +49,8 @@ export const useDnDTasks = (
         [sourceStatus]: sourceTasks,
       }));
     } else {
-      movedTask.status = destStatus;
-      destTasks.splice(destination.index, 0, movedTask);
+      const newTask = { ...movedTask, status: destStatus };
+      destTasks.splice(destination.index, 0, newTask);
 
       setDndTasks((prev) => ({
         ...prev,
@@ -59,7 +59,7 @@ export const useDnDTasks = (
       }));
 
       if (onStatusChange) {
-        await onStatusChange(movedTask.id, destStatus);
+        await onStatusChange(newTask.id, destStatus);
       }
     }
   };
