@@ -6,7 +6,7 @@ import { boardService } from '../services/board.service';
 import { BoardFormData } from '../schemas/board.schema';
 import { useModal } from '../hooks/useModal';
 import Modal from '../components/Modal';
-import BoardForm from '../components/boards/BoardForm';
+import CreateBoardForm from '../components/boards/CreateBoardForm';
 import ConfirmModal from '../components/ConfirmModal';
 import { useState } from 'react';
 import UpdateBoardForm from '../components/boards/UpdateBoardForm';
@@ -99,7 +99,10 @@ const BoardsPage = () => {
 
       {isCreateModalOpen && (
         <Modal onClose={closeCreateModal}>
-          <BoardForm onSubmit={handleCreateBoard} onCancel={closeCreateModal} />
+          <CreateBoardForm
+            onSubmit={handleCreateBoard}
+            onCancel={closeCreateModal}
+          />
         </Modal>
       )}
 

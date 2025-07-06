@@ -7,7 +7,7 @@ interface BoardFormProps {
   onCancel: () => void;
 }
 
-const BoardForm: React.FC<BoardFormProps> = ({ onSubmit, onCancel }) => {
+const CreateBoardForm: React.FC<BoardFormProps> = ({ onSubmit, onCancel }) => {
   const {
     register,
     handleSubmit,
@@ -59,4 +59,4 @@ const BoardForm: React.FC<BoardFormProps> = ({ onSubmit, onCancel }) => {
   );
 };
 
-export default BoardForm;
+export default CreateBoardForm;

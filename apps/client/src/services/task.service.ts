@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { Task } from '../types/board.type';
+import { TaskFormData } from '../schemas/task.schema';
+import { TaskStatus } from '../enums/task-status.enum';
 
 class TaskService {
   async getTasksByBoardId(boardId: number): Promise<Task[]> {
@@ -9,18 +11,24 @@ class TaskService {
     return response.data;
   }
 
-  async createTask(boardId: number, data: any): Promise<Task> {
+  async createTask(boardId: number, data: TaskFormData): Promise<Task> {
+    const payload = { ...data, boardId };
     const response = await axios.post(
       `http://localhost:3001/boards/${boardId}/tasks`,
-      data
+      payload
     );
     return response.data;
   }
 
-  async updateTask(boardId: number, taskId: number, data: any): Promise<Task> {
-    const response = await axios.put(
+  async updateTask(
+    boardId: number,
+    taskId: number,
+    data: Partial<TaskFormData>
+  ): Promise<Task> {
+    const payload = { ...data, boardId };
+    const response = await axios.patch(
       `http://localhost:3001/boards/${boardId}/tasks/${taskId}`,
-      data
+      payload
     );
     return response.data;
   }

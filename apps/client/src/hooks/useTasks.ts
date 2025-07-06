@@ -18,7 +18,7 @@ export const useTasks = (boardId: number) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [boardId]);
 
   useEffect(() => {
     fetchTasks();
