@@ -10,6 +10,8 @@ import BoardForm from '../components/boards/BoardForm';
 import ConfirmModal from '../components/ConfirmModal';
 import { useState } from 'react';
 import UpdateBoardForm from '../components/boards/UpdateBoardForm';
+import Loading from '../components/Loading';
+import ErrorMessage from '../components/ErrorMessage';
 
 const BoardsPage = () => {
   const { boards, isLoading, error, refetch } = useBoards();
@@ -81,7 +83,6 @@ const BoardsPage = () => {
 
   const handleDeleteBoard = async (id: number) => {
     try {
-      console.log('deleteing board with id ', id);
       await boardService.deleteBoard(id);
       await refetch();
     } catch (error) {
@@ -89,8 +90,8 @@ const BoardsPage = () => {
     }
   };
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Oops, something wrong happened: {error}</p>;
+  if (isLoading) return <Loading />;
+  if (error) return <ErrorMessage />;
 
   return (
     <div>

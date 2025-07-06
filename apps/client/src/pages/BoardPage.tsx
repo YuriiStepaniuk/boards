@@ -10,6 +10,8 @@ import { TaskStatus } from '../enums/task-status.enum';
 import { groupTasksByStatus } from '../utils/task.utils';
 import { useTasks } from '../hooks/useTasks';
 import { useParams } from 'react-router-dom';
+import Loading from '../components/Loading';
+import ErrorMessage from '../components/ErrorMessage';
 
 type GroupedTasks = Record<TaskStatus, Task[]>;
 
@@ -69,9 +71,8 @@ export default function BoardPage() {
     }
   };
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error || !tasks) return <p>Something went wrong...</p>;
-  if (!tasks) return <p>Something went wrong...</p>;
+  if (isLoading) return <Loading />;
+  if (error || !tasks) return <ErrorMessage />;
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
