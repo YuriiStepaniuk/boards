@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigType } from 'src/config/configuration';
-import { Environment } from 'src/enums/environment.enum';
 
 @Module({
   imports: [
@@ -18,7 +17,7 @@ import { Environment } from 'src/enums/environment.enum';
         password: configService.get('database.password', { infer: true }),
         database: configService.get('database.name', { infer: true }),
         autoLoadEntities: true,
-        synchronize: configService.get('env') === Environment.DEV,
+        synchronize: true,
       }),
     }),
   ],
