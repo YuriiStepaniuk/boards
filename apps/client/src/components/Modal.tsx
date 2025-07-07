@@ -25,7 +25,7 @@ const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
       {/* eslint-disable jsx-a11y/no-static-element-interactions */}
       <div
         className="bg-white p-6 rounded shadow-lg relative"
-        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-2 right-2">
           X

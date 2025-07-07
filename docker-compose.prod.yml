@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: mypostgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${PROD_DB_USERNAME}
+      POSTGRES_PASSWORD: ${PROD_DB_PASSWORD}
+      POSTGRES_DB: ${PROD_DB_NAME}
+    ports:
+      - '${PROD_DB_PORT}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./apps/server/.env.prod
+
+  server:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+      target: production
+    container_name: myserver
+    restart: always
+    depends_on:
+      - postgres
+    env_file:
+      - './apps/server/.env.prod'
+    ports:
+      - '${PROD_SERVER_PORT}:${PROD_SERVER_PORT}'
+
+  client:
+    build:
+      context: ./apps/client
+      dockerfile: Dockerfile
+      target: production
+    container_name: myclient
+    restart: always
+    depends_on:
+      - server
+    env_file:
+      - './apps/client/.env.prod'
+    ports:
+      - '${PROD_CLIENT_PORT}:${PROD_CLIENT_PORT}'
+
+volumes:
+  postgres_data:
