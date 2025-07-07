@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: mypostgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./apps/server/.env
+
+  server:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+      target: development
+    container_name: myserver
+    restart: always
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/server
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./apps/server/package.json
+    depends_on:
+      - postgres
+    environment:
+      - WDS_SOCKET_HOST=127.0.0.1
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    env_file:
+      - './apps/server/.env'
+    ports:
+      - '${SERVER_PORT}:${SERVER_PORT}'
+
+  client:
+    build:
+      context: ./apps/client
+      dockerfile: Dockerfile
+      target: development
+    container_name: myclient
+    restart: always
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/client
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./apps/client/package.json
+    depends_on:
+      - server
+    env_file:
+      - './apps/client/.env'
+    ports:
+      - '${CLIENT_PORT}:${CLIENT_PORT}'
+
+volumes:
+  postgres_data:

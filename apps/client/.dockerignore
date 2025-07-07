@@ -1,0 +1,21 @@
+# Node modules should not be copied into the container
+node_modules/
+
+# Log files
+*.log
+
+# Environment files (sensitive)
+.env
+client.dev.env
+client.prod.env
+
+# Build and dist directories
+dist/
+build/
+
+# Git files
+.git/
+
+# Temporary and cache files
+/tmp/
+.cache/
