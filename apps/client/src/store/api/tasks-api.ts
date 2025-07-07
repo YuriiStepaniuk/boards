@@ -25,7 +25,7 @@ export const tasksApi = createApi({
           body: { boardId, ...data },
         }),
         invalidatesTags: [{ type: 'Task', id: 'LIST' }],
-      }
+      },
     ),
     updateTask: builder.mutation<
       Task,

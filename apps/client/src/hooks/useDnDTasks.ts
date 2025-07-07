@@ -8,7 +8,7 @@ type GroupedTasks = Record<TaskStatus, Task[]>;
 
 export const useDnDTasks = (
   tasks: Task[] | null,
-  onStatusChange?: (taskId: number, newStatus: TaskStatus) => void
+  onStatusChange?: (taskId: number, newStatus: TaskStatus) => void,
 ) => {
   const [dndTasks, setDndTasks] = useState<GroupedTasks>({
     [TaskStatus.TODO]: [],
@@ -23,7 +23,7 @@ export const useDnDTasks = (
         const isSame = Object.keys(grouped).every(
           (status) =>
             JSON.stringify(grouped[status as TaskStatus]) ===
-            JSON.stringify(prevDndTasks[status as TaskStatus])
+            JSON.stringify(prevDndTasks[status as TaskStatus]),
         );
         return isSame ? prevDndTasks : grouped;
       });
