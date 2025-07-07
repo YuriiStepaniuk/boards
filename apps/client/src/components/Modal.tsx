@@ -14,10 +14,18 @@ const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
       onClick={onClose}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onClose();
+        }
+      }}
     >
+      {/* eslint-disable jsx-a11y/no-static-element-interactions */}
       <div
         className="bg-white p-6 rounded shadow-lg relative"
-        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-2 right-2">
           X
@@ -25,7 +33,7 @@ const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
         {children}
       </div>
     </div>,
-    modalRoot
+    modalRoot,
   );
 };
 

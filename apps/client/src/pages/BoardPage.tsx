@@ -49,7 +49,7 @@ export default function BoardPage() {
     data: tasks,
     isLoading,
     error,
-  } = useGetTasksQuery(boardId!, {
+  } = useGetTasksQuery(boardId ?? '', {
     skip: !boardId,
   });
 

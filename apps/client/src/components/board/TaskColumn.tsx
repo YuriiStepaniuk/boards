@@ -35,7 +35,7 @@ const TaskColumn: React.FC<TaskColumnProps> = ({
             draggableId={task.id.toString()}
             index={index}
           >
-            {(provided, snapshot) => (
+            {(provided) => (
               <div
                 ref={provided.innerRef}
                 {...provided.draggableProps}

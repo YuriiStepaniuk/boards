@@ -27,7 +27,7 @@ const BoardsPage = () => {
     data: singleBoard,
     error: singleBoardError,
     isLoading: singleBoardLoading,
-  } = useGetBoardQuery(searchedHashedId!, {
+  } = useGetBoardQuery(searchedHashedId ?? '', {
     skip: !searchedHashedId,
   });
 
@@ -42,7 +42,7 @@ const BoardsPage = () => {
   const [deleteBoard] = useDeleteBoardMutation();
 
   const [boardToUpdate, setBoardToUpdate] = useState<BoardFormData | null>(
-    null
+    null,
   );
   const [boardToDelete, setBoardToDelete] = useState<string | null>(null);
 
@@ -90,7 +90,7 @@ const BoardsPage = () => {
     if (!boardToUpdate) return;
     try {
       const boardId = allBoards?.find(
-        (b) => b.name === boardToUpdate.name
+        (b) => b.name === boardToUpdate.name,
       )?.hashedId;
       if (!boardId) throw new Error('Board id not found');
       await updateBoard({ hashedId: boardId, data }).unwrap();

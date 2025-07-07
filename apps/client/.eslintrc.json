@@ -27,8 +27,9 @@
     }
   },
   "rules": {
+    "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",
-    "no-console": "warn",
+    "no-console": ["error", { "allow": ["error"] }],
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
   }
 }
