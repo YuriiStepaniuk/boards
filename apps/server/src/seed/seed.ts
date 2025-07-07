@@ -42,9 +42,16 @@ async function seed() {
   console.log('✅ Database seeded');
 }
 
-seed()
-  .then(() => AppDataSource.destroy())
-  .catch((e) => {
+async function runSeed() {
+  try {
+    await seed();
+  } catch (e) {
     console.error('❌ Seeding failed', e);
-    AppDataSource.destroy().finally(() => process.exit(1));
-  });
+    await AppDataSource.destroy();
+    process.exit(1);
+  }
+  await AppDataSource.destroy();
+  process.exit(0);
+}
+
+runSeed();
