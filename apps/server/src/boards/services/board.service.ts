@@ -6,6 +6,7 @@ import { CreateBoardDto } from '../dto/boards/create-board.dto';
 import { nanoid } from 'nanoid';
 import { UpdateBoardDto } from '../dto/boards/update-board.dto';
 import { DEFAULT_BOARDS_LIMIT, HASHED_ID_LENGTH } from '../config/constants';
+import { FindAllParams } from '../types/params';
 
 @Injectable()
 export class BoardService {

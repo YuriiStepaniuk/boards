@@ -1,4 +1,4 @@
-interface FindAllParams {
+export interface FindAllParams {
   limit?: number;
   offset?: number;
   sortBy?: string;

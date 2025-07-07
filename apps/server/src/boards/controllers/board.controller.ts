@@ -5,7 +5,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -14,7 +13,6 @@ import {
 import { BoardService } from '../services/board.service';
 import { UpdateBoardDto } from '../dto/boards/update-board.dto';
 import { CreateBoardDto } from '../dto/boards/create-board.dto';
-import { DeleteResult } from 'typeorm';
 import { BoardEntity } from '../entities/board.entity';
 
 @Controller('boards')

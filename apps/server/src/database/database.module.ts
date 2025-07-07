@@ -10,7 +10,7 @@ import { Environment } from 'src/enums/environment.enum';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService<ConfigType>) => ({
+      useFactory: (configService: ConfigService<ConfigType>) => ({
         type: 'postgres',
         host: configService.get('database.host', { infer: true }),
         port: configService.get('database.port', { infer: true }),
