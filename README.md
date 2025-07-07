@@ -43,7 +43,7 @@ Turborepo for monorepo management
 Make sure you have Docker and Docker Compose installed.
 
 ⚠️ Setup Environment Variables
-Before starting, create and configure .env files in the project root and/or in the apps/server and apps/client folders as needed.
+Before starting, create and configure .env files in the project root and in the apps/server folders as needed.
 You can use the provided .env.example files as a template and fill in your own values.
 
 1. In the project root, run:
@@ -63,3 +63,9 @@ Frontend React app (container named myclient)
 2. Access the frontend app at http://localhost:3000 (or whichever port you expose).
 
 3. Backend API runs at http://localhost:3001 (or your configured backend port).
+
+4. You can enter command below for hot-reloads:
+
+```bash
+docker-compose -f docker-compose.dev.yml up --watch
+```
