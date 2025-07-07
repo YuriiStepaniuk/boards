@@ -5,8 +5,7 @@ import { DeleteResult, FindOptionsRelations, Repository } from 'typeorm';
 import { CreateBoardDto } from '../dto/boards/create-board.dto';
 import { nanoid } from 'nanoid';
 import { UpdateBoardDto } from '../dto/boards/update-board.dto';
-import { BoardResponseDto } from '../dto/boards/board-reponse.dto';
-import { plainToInstance } from 'class-transformer';
+import { DEFAULT_BOARDS_LIMIT, HASHED_ID_LENGTH } from '../config/constants';
 
 @Injectable()
 export class BoardService {
@@ -23,7 +22,7 @@ export class BoardService {
     try {
       const board = this.boardRepository.create({
         name: data.name,
-        hashedId: nanoid(8),
+        hashedId: nanoid(HASHED_ID_LENGTH),
       });
       return this.boardRepository.save(board);
     } catch (error) {
@@ -34,7 +33,8 @@ export class BoardService {
 
   async findAll(params: FindAllParams): Promise<BoardEntity[]> {
     try {
-      const limit = params.limit && params.limit > 0 ? params.limit : 5;
+      const limit =
+        params.limit && params.limit > 0 ? params.limit : DEFAULT_BOARDS_LIMIT;
       return this.boardRepository.find({
         take: limit,
         relations: this.relations,
@@ -46,93 +46,44 @@ export class BoardService {
   }
 
   async findById(id: number): Promise<BoardEntity> {
-    try {
-      const board = await this.boardRepository.findOne({
-        where: { id },
-        relations: this.relations,
-      });
-
-      if (!board) {
-        throw new NotFoundException('Board was not found');
-      }
-
-      return board;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    return this.findBoard({ id });
   }
 
   async findByHashedId(hashedId: string): Promise<BoardEntity> {
-    try {
-      const board = await this.boardRepository.findOne({
-        where: { hashedId },
-        relations: this.relations,
-      });
-
-      if (!board) {
-        throw new NotFoundException('Board was not found');
-      }
-
-      return board;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    return this.findBoard({ hashedId });
   }
 
   async update(id: number, data: UpdateBoardDto): Promise<BoardEntity> {
-    try {
-      const board = await this.boardRepository.findOne({ where: { id } });
-
-      if (!board) {
-        throw new NotFoundException('Board was not found');
-      }
-
-      Object.assign(board, data);
-
-      return this.boardRepository.save(board);
-    } catch (error) {
-      console.error();
-      throw error;
-    }
+    const board = await this.findBoard({ id });
+    Object.assign(board, data);
+    return this.boardRepository.save(board);
   }
 
   async updateByHashedId(
     hashedId: string,
     data: UpdateBoardDto,
   ): Promise<BoardEntity> {
-    try {
-      const board = await this.boardRepository.findOne({ where: { hashedId } });
-
-      if (!board) {
-        throw new NotFoundException('Board was not found');
-      }
-
-      Object.assign(board, data);
-
-      return this.boardRepository.save(board);
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    const board = await this.findBoard({ hashedId });
+    Object.assign(board, data);
+    return this.boardRepository.save(board);
   }
 
   async delete(id: number): Promise<DeleteResult> {
-    try {
-      return this.boardRepository.delete(id);
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    return this.boardRepository.delete(id);
   }
 
   async deleteByHashedId(hashedId: string): Promise<DeleteResult> {
-    try {
-      return this.boardRepository.delete({ hashedId });
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    return this.boardRepository.delete({ hashedId });
+  }
+
+  private async findBoard(
+    where: Partial<Pick<BoardEntity, 'id' | 'hashedId'>>,
+  ): Promise<BoardEntity> {
+    const board = await this.boardRepository.findOne({
+      where,
+      relations: this.relations,
+    });
+    if (!board) throw new NotFoundException('Board was not found');
+    return board;
   }
 }

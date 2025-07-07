@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TaskEntity } from '../entities/task.entity';
-import { DeleteResult, FindOptionsRelations, Repository } from 'typeorm';
+import { FindOptionsRelations, Repository } from 'typeorm';
 import { CreateTaskDto } from '../dto/tasks/create-task.dto';
 import { UpdateTaskDto } from '../dto/tasks/update-task.dto';
 import { BoardEntity } from '../entities/board.entity';
@@ -72,21 +72,20 @@ export class TaskService {
     boardId: string,
     data: UpdateTaskDto,
   ): Promise<TaskEntity> {
-    const task = await this.taskRepository.findOne({
-      where: { id: taskId },
-      relations: this.relations,
-    });
-
-    if (!task || task.board.hashedId !== boardId) {
-      throw new NotFoundException('Task not found for this board');
-    }
-
+    const task = await this.findTaskForBoard(taskId, boardId);
     Object.assign(task, data);
-
     return this.taskRepository.save(task);
   }
 
   async delete(taskId: number, boardId: string): Promise<void> {
+    const task = await this.findTaskForBoard(taskId, boardId);
+    await this.taskRepository.remove(task);
+  }
+
+  private async findTaskForBoard(
+    taskId: number,
+    boardId: string,
+  ): Promise<TaskEntity> {
     const task = await this.taskRepository.findOne({
       where: { id: taskId },
       relations: this.relations,
@@ -96,6 +95,6 @@ export class TaskService {
       throw new NotFoundException('Task not found for this board');
     }
 
-    await this.taskRepository.remove(task);
+    return task;
   }
 }

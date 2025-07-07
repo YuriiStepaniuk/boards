@@ -18,6 +18,7 @@ import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import { BoardType } from '../types/board.type';
 import Board from '../components/boards/Board';
+import { BOARDS_FETCH_LIMIT } from '../config/constants';
 
 const BoardsPage = () => {
   const [searchedHashedId, setSearchedHashedId] = useState<string | null>(null);
@@ -34,7 +35,7 @@ const BoardsPage = () => {
     data: allBoards,
     error: allBoardsError,
     isLoading: allBoardsLoading,
-  } = useGetBoardsQuery(5);
+  } = useGetBoardsQuery(BOARDS_FETCH_LIMIT);
 
   const [createBoard] = useCreateBoardMutation();
   const [updateBoard] = useUpdateBoardMutation();
