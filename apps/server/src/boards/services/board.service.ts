@@ -32,9 +32,13 @@ export class BoardService {
     }
   }
 
-  async findAll(): Promise<BoardEntity[]> {
+  async findAll(params: FindAllParams): Promise<BoardEntity[]> {
     try {
-      return this.boardRepository.find({ relations: this.relations });
+      const limit = params.limit && params.limit > 0 ? params.limit : 5;
+      return this.boardRepository.find({
+        take: limit,
+        relations: this.relations,
+      });
     } catch (error) {
       console.error(error);
       throw error;
@@ -45,6 +49,24 @@ export class BoardService {
     try {
       const board = await this.boardRepository.findOne({
         where: { id },
+        relations: this.relations,
+      });
+
+      if (!board) {
+        throw new NotFoundException('Board was not found');
+      }
+
+      return board;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async findByHashedId(hashedId: string): Promise<BoardEntity> {
+    try {
+      const board = await this.boardRepository.findOne({
+        where: { hashedId },
         relations: this.relations,
       });
 
@@ -76,9 +98,38 @@ export class BoardService {
     }
   }
 
+  async updateByHashedId(
+    hashedId: string,
+    data: UpdateBoardDto,
+  ): Promise<BoardEntity> {
+    try {
+      const board = await this.boardRepository.findOne({ where: { hashedId } });
+
+      if (!board) {
+        throw new NotFoundException('Board was not found');
+      }
+
+      Object.assign(board, data);
+
+      return this.boardRepository.save(board);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   async delete(id: number): Promise<DeleteResult> {
     try {
       return this.boardRepository.delete(id);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async deleteByHashedId(hashedId: string): Promise<DeleteResult> {
+    try {
+      return this.boardRepository.delete({ hashedId });
     } catch (error) {
       console.error(error);
       throw error;

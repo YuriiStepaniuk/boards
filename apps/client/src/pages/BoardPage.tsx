@@ -22,8 +22,7 @@ import {
 } from '../store/api/tasks-api';
 
 export default function BoardPage() {
-  const { id } = useParams();
-  const boardId = id ? parseInt(id, 10) : NaN;
+  const { id: boardId } = useParams();
 
   const {
     isOpen: isCreateOpen,

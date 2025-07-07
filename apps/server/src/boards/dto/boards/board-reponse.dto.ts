@@ -3,7 +3,7 @@ import { TaskResponseDto } from '../tasks/task-response.dto';
 
 export class BoardResponseDto {
   @Expose()
-  id: number;
+  hashedId: string;
 
   @Expose()
   name: string;

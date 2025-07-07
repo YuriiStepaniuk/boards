@@ -2,15 +2,15 @@ import { Link } from 'react-router-dom';
 import { route } from '../../types/route';
 
 interface BoardProps {
-  id: number;
+  hashedId: string;
   name: string;
   tasksCount: number;
-  onUpdate: (id: number) => void;
-  onDelete: (id: number) => void;
+  onUpdate: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const Board: React.FC<BoardProps> = ({
-  id,
+  hashedId,
   name,
   tasksCount,
   onUpdate,
@@ -18,7 +18,7 @@ const Board: React.FC<BoardProps> = ({
 }) => {
   return (
     <Link
-      to={`${route.BOARDS}/${id}`}
+      to={`${route.BOARDS}/${hashedId}`}
       className="flex items-center justify-between bg-white p-4 rounded shadow mb-3 mx-24 hover:bg-gray-100 transition cursor-pointer"
     >
       <div className="flex flex-col flex-grow">
@@ -31,7 +31,7 @@ const Board: React.FC<BoardProps> = ({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            onUpdate(id);
+            onUpdate(hashedId);
           }}
           className="px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition"
         >
@@ -41,7 +41,7 @@ const Board: React.FC<BoardProps> = ({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            onDelete(id);
+            onDelete(hashedId);
           }}
           className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
         >

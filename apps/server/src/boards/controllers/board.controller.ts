@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { BoardService } from '../services/board.service';
@@ -22,14 +23,15 @@ export class BoardController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  async findAll(): Promise<BoardEntity[]> {
-    return this.boardService.findAll();
+  async findAll(@Query('limit') limit?: string): Promise<BoardEntity[]> {
+    const parsedLimit = limit ? parseInt(limit, 10) : undefined;
+    return this.boardService.findAll({ limit: parsedLimit });
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
-  @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number): Promise<BoardEntity> {
-    return this.boardService.findById(id);
+  @Get(':hashedId')
+  getBoard(@Param('hashedId') hashedId: string) {
+    return this.boardService.findByHashedId(hashedId);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -39,16 +41,16 @@ export class BoardController {
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
-  @Put(':id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateBoardDto: UpdateBoardDto,
-  ): Promise<BoardEntity> {
-    return this.boardService.update(id, updateBoardDto);
+  @Put(':hashedId')
+  updateBoard(
+    @Param('hashedId') hashedId: string,
+    @Body() data: UpdateBoardDto,
+  ) {
+    return this.boardService.updateByHashedId(hashedId, data);
   }
 
-  @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number): Promise<DeleteResult> {
-    return this.boardService.delete(id);
+  @Delete(':hashedId')
+  deleteBoard(@Param('hashedId') hashedId: string) {
+    return this.boardService.deleteByHashedId(hashedId);
   }
 }

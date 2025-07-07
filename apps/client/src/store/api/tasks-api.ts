@@ -7,7 +7,7 @@ export const tasksApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: process.env.REACT_APP_API_URL }),
   tagTypes: ['Task'],
   endpoints: (builder) => ({
-    getTasks: builder.query<Task[], number>({
+    getTasks: builder.query<Task[], string>({
       query: (boardId) => `boards/${boardId}/tasks`,
       providesTags: (result) =>
         result
@@ -17,7 +17,7 @@ export const tasksApi = createApi({
             ]
           : [{ type: 'Task', id: 'LIST' }],
     }),
-    createTask: builder.mutation<Task, { boardId: number; data: TaskFormData }>(
+    createTask: builder.mutation<Task, { boardId: string; data: TaskFormData }>(
       {
         query: ({ boardId, data }) => ({
           url: `boards/${boardId}/tasks`,
@@ -29,7 +29,7 @@ export const tasksApi = createApi({
     ),
     updateTask: builder.mutation<
       Task,
-      { boardId: number; taskId: number; data: Partial<TaskFormData> }
+      { boardId: string; taskId: number; data: Partial<TaskFormData> }
     >({
       query: ({ boardId, taskId, data }) => ({
         url: `boards/${boardId}/tasks/${taskId}`,
@@ -41,7 +41,7 @@ export const tasksApi = createApi({
         { type: 'Task', id: 'LIST' },
       ],
     }),
-    deleteTask: builder.mutation<number, { boardId: number; taskId: number }>({
+    deleteTask: builder.mutation<number, { boardId: string; taskId: number }>({
       query: ({ boardId, taskId }) => ({
         url: `boards/${boardId}/tasks/${taskId}`,
         method: 'DELETE',

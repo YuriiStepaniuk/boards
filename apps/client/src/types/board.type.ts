@@ -1,7 +1,6 @@
 import { TaskStatus } from '../enums/task-status.enum';
 
-export type Board = {
-  id: number;
+export type BoardType = {
   hashedId: string;
   name: string;
   tasks: Task[];

@@ -21,9 +21,7 @@ export class TaskController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  async findAll(
-    @Param('boardId', ParseIntPipe) boardId: number,
-  ): Promise<TaskEntity[]> {
+  async findAll(@Param('boardId') boardId: string): Promise<TaskEntity[]> {
     return this.taskService.findAll(boardId);
   }
 
@@ -36,7 +34,7 @@ export class TaskController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Patch(':taskId')
   async update(
-    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('boardId') boardId: string,
     @Param('taskId', ParseIntPipe) taskId: number,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskEntity> {
@@ -45,7 +43,7 @@ export class TaskController {
 
   @Delete(':taskId')
   async delete(
-    @Param('boardId', ParseIntPipe) boardId: number,
+    @Param('boardId') boardId: string,
     @Param('taskId', ParseIntPipe) taskId: number,
   ): Promise<void> {
     return this.taskService.delete(taskId, boardId);

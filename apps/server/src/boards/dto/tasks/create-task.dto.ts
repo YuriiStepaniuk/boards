@@ -1,4 +1,4 @@
-import { IsInt, IsString, Length } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 
 export class CreateTaskDto {
   @IsString()
@@ -9,6 +9,6 @@ export class CreateTaskDto {
   @Length(1, 100)
   description: string;
 
-  @IsInt()
-  boardId: number;
+  @IsString()
+  boardId: string;
 }

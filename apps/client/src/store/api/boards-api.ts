@@ -1,26 +1,31 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Board } from '../../types/board.type';
+import { BoardType } from '../../types/board.type';
 
 export const boardsApi = createApi({
   reducerPath: 'boardsApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3001/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: process.env.REACT_APP_API_URL }),
   tagTypes: ['Board'],
   endpoints: (builder) => ({
-    getBoards: builder.query<Board[], void>({
-      query: () => 'boards',
+    getBoards: builder.query<BoardType[], number | void>({
+      query: (limit) => (limit ? `boards?limit=${limit}` : 'boards'),
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Board' as const, id })),
+              ...result.map(({ hashedId }) => ({
+                type: 'Board' as const,
+                id: hashedId,
+              })),
               { type: 'Board', id: 'LIST' },
             ]
           : [{ type: 'Board', id: 'LIST' }],
     }),
-    getBoard: builder.query<Board, number>({
-      query: (id) => `boards/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Board', id }],
+    getBoard: builder.query<BoardType, string>({
+      query: (hashedId) => `boards/${hashedId}`,
+      providesTags: (result, error, hashedId) => [
+        { type: 'Board', id: hashedId },
+      ],
     }),
-    createBoard: builder.mutation<Board, Partial<Board>>({
+    createBoard: builder.mutation<BoardType, Partial<BoardType>>({
       query: (data) => ({
         url: 'boards',
         method: 'POST',
@@ -28,17 +33,22 @@ export const boardsApi = createApi({
       }),
       invalidatesTags: [{ type: 'Board', id: 'LIST' }],
     }),
-    updateBoard: builder.mutation<Board, { id: number; data: Partial<Board> }>({
-      query: ({ id, data }) => ({
-        url: `boards/${id}`,
+    updateBoard: builder.mutation<
+      BoardType,
+      { hashedId: string; data: Partial<BoardType> }
+    >({
+      query: ({ hashedId, data }) => ({
+        url: `boards/${hashedId}`,
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Board', id }],
+      invalidatesTags: (result, error, { hashedId }) => [
+        { type: 'Board', id: hashedId },
+      ],
     }),
-    deleteBoard: builder.mutation<void, number>({
-      query: (id) => ({
-        url: `boards/${id}`,
+    deleteBoard: builder.mutation<void, string>({
+      query: (hashedId) => ({
+        url: `boards/${hashedId}`,
         method: 'DELETE',
       }),
       invalidatesTags: [{ type: 'Board', id: 'LIST' }],

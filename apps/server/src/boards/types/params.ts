@@ -1,0 +1,3 @@
+interface FindAllParams {
+  limit?: number;
+}

@@ -1,9 +1,9 @@
 import Modal from './Modal';
 
 interface ConfirmModalProps {
-  id: number;
+  id: string | number;
   message: string;
-  onConfirm: (id: number) => void;
+  onConfirm: (id: string | number) => void;
   onCancel: () => void;
 }
 

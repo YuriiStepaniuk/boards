@@ -1,10 +1,10 @@
-import Board from '../components/boards/Board';
 import SearchBoards from '../components/boards/SearchBoards';
 import {
   useGetBoardsQuery,
   useCreateBoardMutation,
   useUpdateBoardMutation,
   useDeleteBoardMutation,
+  useGetBoardQuery,
 } from '../store/api/boards-api';
 
 import { BoardFormData } from '../schemas/board.schema';
@@ -16,9 +16,25 @@ import { useState } from 'react';
 import UpdateBoardForm from '../components/boards/UpdateBoardForm';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
+import { BoardType } from '../types/board.type';
+import Board from '../components/boards/Board';
 
 const BoardsPage = () => {
-  const { data: boards, error, isLoading } = useGetBoardsQuery();
+  const [searchedHashedId, setSearchedHashedId] = useState<string | null>(null);
+
+  const {
+    data: singleBoard,
+    error: singleBoardError,
+    isLoading: singleBoardLoading,
+  } = useGetBoardQuery(searchedHashedId!, {
+    skip: !searchedHashedId,
+  });
+
+  const {
+    data: allBoards,
+    error: allBoardsError,
+    isLoading: allBoardsLoading,
+  } = useGetBoardsQuery(5);
 
   const [createBoard] = useCreateBoardMutation();
   const [updateBoard] = useUpdateBoardMutation();
@@ -27,7 +43,7 @@ const BoardsPage = () => {
   const [boardToUpdate, setBoardToUpdate] = useState<BoardFormData | null>(
     null
   );
-  const [boardToDelete, setBoardToDelete] = useState<number | null>(null);
+  const [boardToDelete, setBoardToDelete] = useState<string | null>(null);
 
   const {
     isOpen: isCreateModalOpen,
@@ -47,16 +63,16 @@ const BoardsPage = () => {
     closeModal: closeDeleteModal,
   } = useModal();
 
-  const onUpdate = (boardId: number) => {
-    const board = boards?.find((b) => b.id === boardId);
+  const onUpdate = (boardHashedId: string) => {
+    const board = allBoards?.find((b) => b.hashedId === boardHashedId);
     if (board) {
       setBoardToUpdate({ name: board.name });
       openUpdateModal();
     }
   };
 
-  const onDelete = (id: number) => {
-    setBoardToDelete(id);
+  const onDelete = (boardHashedId: string) => {
+    setBoardToDelete(boardHashedId);
     openDeleteModal();
   };
 
@@ -72,9 +88,11 @@ const BoardsPage = () => {
   const handleUpdateBoard = async (data: BoardFormData) => {
     if (!boardToUpdate) return;
     try {
-      const boardId = boards?.find((b) => b.name === boardToUpdate.name)?.id;
+      const boardId = allBoards?.find(
+        (b) => b.name === boardToUpdate.name
+      )?.hashedId;
       if (!boardId) throw new Error('Board id not found');
-      await updateBoard({ id: boardId, data }).unwrap();
+      await updateBoard({ hashedId: boardId, data }).unwrap();
       closeUpdateModal();
       setBoardToUpdate(null);
     } catch (error) {
@@ -82,7 +100,7 @@ const BoardsPage = () => {
     }
   };
 
-  const handleDeleteBoard = async (id: number) => {
+  const handleDeleteBoard = async (id: string) => {
     try {
       await deleteBoard(id).unwrap();
       setBoardToDelete(null);
@@ -92,12 +110,24 @@ const BoardsPage = () => {
     }
   };
 
-  if (isLoading) return <Loading />;
-  if (error) return <ErrorMessage />;
+  const handleSearchById = (hashedId: string) => {
+    setSearchedHashedId(hashedId);
+  };
+
+  const boardsToRender = searchedHashedId
+    ? singleBoard
+      ? [singleBoard]
+      : []
+    : allBoards;
+
+  if (singleBoardLoading || allBoardsLoading) return <Loading />;
 
   return (
     <div>
-      <SearchBoards onCreateClick={openCreateModal} />
+      <SearchBoards
+        onCreateClick={openCreateModal}
+        onSearchById={handleSearchById}
+      />
 
       {isCreateModalOpen && (
         <Modal onClose={closeCreateModal}>
@@ -126,19 +156,23 @@ const BoardsPage = () => {
         </Modal>
       )}
 
-      <div className="max-h-[600px] overflow-y-auto border border-gray-200 rounded p-4">
-        {boards &&
-          boards.map((board) => (
-            <Board
-              key={board.id}
-              id={board.id}
-              name={board.name}
-              tasksCount={board.tasks.length}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
-            />
-          ))}
-      </div>
+      {singleBoardError || allBoardsError ? (
+        <ErrorMessage message="No boards were found. Check entered Id" />
+      ) : (
+        <div className="max-h-[600px] overflow-y-auto border border-gray-200 rounded p-4">
+          {boardsToRender &&
+            boardsToRender.map((board: BoardType) => (
+              <Board
+                key={board.hashedId}
+                hashedId={board.hashedId}
+                name={board.name}
+                tasksCount={board.tasks.length}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+              />
+            ))}
+        </div>
+      )}
 
       {isDeleteModalOpen && boardToDelete !== null && (
         <ConfirmModal
