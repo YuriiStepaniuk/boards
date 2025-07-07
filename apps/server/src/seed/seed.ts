@@ -54,4 +54,4 @@ async function runSeed() {
   process.exit(0);
 }
 
-runSeed();
+void runSeed();
